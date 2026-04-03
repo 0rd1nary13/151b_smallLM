@@ -1,0 +1,49 @@
+# ── QLoRA SFT Configuration ────────────────────────────────────────────────────
+# Adjust these settings based on your GPU (A100 80GB vs smaller).
+
+model:
+  name_or_path: "Qwen/Qwen3-4B-Thinking-2507"
+  # Set to a LoRA adapter path to resume training from a checkpoint
+  adapter_path: null
+
+quantization:
+  load_in_4bit: true
+  bnb_4bit_quant_type: "nf4"
+  bnb_4bit_compute_dtype: "bfloat16"
+  bnb_4bit_use_double_quant: true
+
+lora:
+  r: 64
+  lora_alpha: 32
+  target_modules:
+    - "q_proj"
+    - "k_proj"
+    - "v_proj"
+    - "o_proj"
+    - "gate_proj"
+    - "up_proj"
+    - "down_proj"
+  lora_dropout: 0.05
+  task_type: "CAUSAL_LM"
+
+training:
+  output_dir: "checkpoints/sft"
+  num_train_epochs: 2
+  per_device_train_batch_size: 2
+  gradient_accumulation_steps: 8
+  learning_rate: 2.0e-4
+  lr_scheduler_type: "cosine"
+  warmup_ratio: 0.05
+  max_seq_length: 4096
+  gradient_checkpointing: true
+  bf16: true
+  logging_steps: 10
+  save_strategy: "steps"
+  save_steps: 500
+  save_total_limit: 3
+  seed: 42
+  dataloader_num_workers: 4
+  report_to: "wandb"  # set to "none" to disable
+
+data:
+  train_path: "data/train_sft.jsonl"

@@ -1,0 +1,15 @@
+# Training dependencies (install on cluster with: pip install -r requirements_train.txt)
+torch
+transformers
+datasets
+accelerate
+peft
+trl
+bitsandbytes
+vllm
+sympy
+numpy
+tqdm
+antlr4-python3-runtime==4.11.1
+wandb
+pyyaml

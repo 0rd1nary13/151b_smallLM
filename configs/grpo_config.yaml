@@ -1,0 +1,58 @@
+# ── GRPO RL Configuration ──────────────────────────────────────────────────────
+# Applied on top of the SFT checkpoint for reinforcement learning with
+# math-accuracy rewards.
+
+model:
+  name_or_path: "Qwen/Qwen3-4B-Thinking-2507"
+  # Path to the SFT adapter to initialize from (required)
+  sft_adapter_path: "checkpoints/sft/final"
+
+quantization:
+  load_in_4bit: true
+  bnb_4bit_quant_type: "nf4"
+  bnb_4bit_compute_dtype: "bfloat16"
+  bnb_4bit_use_double_quant: true
+
+lora:
+  r: 64
+  lora_alpha: 32
+  target_modules:
+    - "q_proj"
+    - "k_proj"
+    - "v_proj"
+    - "o_proj"
+    - "gate_proj"
+    - "up_proj"
+    - "down_proj"
+  lora_dropout: 0.05
+  task_type: "CAUSAL_LM"
+
+training:
+  output_dir: "checkpoints/grpo"
+  num_train_epochs: 1
+  per_device_train_batch_size: 2
+  gradient_accumulation_steps: 4
+  learning_rate: 5.0e-6
+  lr_scheduler_type: "cosine"
+  warmup_ratio: 0.1
+  max_completion_length: 4096
+  max_prompt_length: 1024
+  num_generations: 8
+  gradient_checkpointing: true
+  bf16: true
+  logging_steps: 5
+  save_strategy: "steps"
+  save_steps: 200
+  save_total_limit: 3
+  seed: 42
+  report_to: "wandb"
+
+rewards:
+  # Weights for the composite reward
+  correctness_weight: 1.0
+  format_weight: 0.1
+
+data:
+  # Uses NuminaMath problems formatted as prompts (no solutions)
+  train_path: "data/train_sft.jsonl"
+  max_samples: 20000
